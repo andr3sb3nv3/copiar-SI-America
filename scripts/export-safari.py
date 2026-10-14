@@ -48,6 +48,7 @@ def page_script(name):
             ('education: "/initiatives/education",', 'education: "education.html",'),
             ('challenge: "/initiatives/presidential-challenge",', 'challenge: "presidential-challenge.html",'),
             ('benve: "/benve",', 'benve: "benve.html",'),
+            ('atenea: "/atenea",', 'atenea: "atenea.html",'),
         ]:
             if source not in script:
                 raise RuntimeError("Navigation declaration missing: " + source)
@@ -67,11 +68,14 @@ pages = {
     "education.html": ("initiatives/education/index.html", "site.js"),
     "presidential-challenge.html": ("initiatives/presidential-challenge/index.html", "site.js"),
     "benve.html": ("benve/index.html", "benve.js"),
+    "atenea.html": ("atenea/index.html", "atenea.js"),
 }
 routes = {
     "/": "index.html",
     "/benve": "benve.html",
     "/benve/": "benve.html",
+    "/atenea": "atenea.html",
+    "/atenea/": "atenea.html",
     "/initiatives/education": "education.html",
     "/initiatives/education/": "education.html",
     "/initiatives/presidential-challenge": "presidential-challenge.html",
@@ -108,7 +112,8 @@ for filename, (source, script_name) in pages.items():
     "3. Abre index.html para ver la replica de SI.gov.\n"
     "4. Baja por la pagina: el logo gira y se transforma en BENVE y luego en dos vestidos.\n"
     "5. Move el mouse sobre los puntos y hace clic para crear ondas.\n\n"
-    "No necesitas instalar Node ni iniciar un servidor. Conserva los cuatro archivos HTML juntos para navegar entre las paginas.\n"
+    "6. Abre atenea.html para ver el logo de ATENEA en puntos verdes sobre azul oscuro.\n\n"
+    "No necesitas instalar Node ni iniciar un servidor. Conserva los cinco archivos HTML juntos para navegar entre las paginas.\n"
 )
 archive = output.with_suffix(".zip")
 with zipfile.ZipFile(archive, "w", compression=zipfile.ZIP_DEFLATED) as bundle:

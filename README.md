@@ -4,6 +4,8 @@ Recreación de [SI.gov](https://www.si.gov/), basada en el diseño y los recurso
 
 La ruta `/benve/` muestra “BENVE” y “vestidos de fiesta” a la izquierda, y el logo circular de partículas blancas girando a la derecha, sobre fondo azul. Al bajar, los mismos puntos se desplazan hacia la izquierda y forman BENVE en sans serif, con una reacción contenida al mouse y a las ondas para conservar la lectura. Más abajo se transforman en un vestido minimalista de un hombro, cintura entallada y tajo lateral. La cuarta figura lleva los puntos hacia la derecha y forma un segundo vestido de escote halter y caída sirena, en una posición más baja. Ambos usan blanco y lavanda para definir el drapeado y una superficie con profundidad. El color aparece gradualmente con los vestidos y vuelve a blanco al subir. Conserva la reacción elástica al mouse, ondas al clic y perspectiva 3D. En móvil, el texto inicial queda arriba del logo. Se accede desde el enlace BENVE del menú; el botón Recomponer devuelve los puntos a la figura correspondiente a la posición del scroll.
 
+La ruta `/atenea/` presenta el logo de ATENEA, empresa de marketing digital, en puntos verdes sobre azul oscuro. El símbolo y las letras se trazan desde la imagen de referencia, con una sola escala que conserva las proporciones de la A grande y las dos A del nombre, sus bases curvas y el contorno triangular del conjunto. Incluye interacción suave con el mouse, ondas, teclado y movimiento reducido.
+
 ## Desarrollo
 
 Requiere Node.js 22.12 o posterior; el entorno utiliza Node.js 24.19.0.
@@ -24,7 +26,7 @@ npm test
 npm run preview -- --port 4173 --strictPort
 ```
 
-Las pruebas de Playwright usan Chromium en `/usr/bin/chromium` e inician el servidor de desarrollo cuando es necesario. Si tu navegador está en otra ubicación, establece `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` con su ruta. `dist/` contiene las cuatro páginas para alojamiento estático.
+Las pruebas de Playwright usan Chromium en `/usr/bin/chromium` e inician el servidor de desarrollo cuando es necesario. Si tu navegador está en otra ubicación, establece `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` con su ruta. `dist/` contiene las cinco páginas para alojamiento estático.
 
 ## Abrir en Safari sin servidor
 
@@ -32,15 +34,15 @@ Las pruebas de Playwright usan Chromium en `/usr/bin/chromium` e inician el serv
 npm run export:safari
 ```
 
-La exportación requiere Python 3 y genera `si-america-safari.zip` junto a la carpeta del proyecto. Descomprime el ZIP y abre `benve.html` con Safari para ver BENVE y sus transiciones de partículas, o `index.html` para SI.gov. Los cuatro archivos incluyen sus estilos, fuentes, imágenes y JavaScript; no hace falta instalar herramientas para verlos. Conserva los archivos HTML juntos para navegar entre ellos.
+La exportación requiere Python 3 y genera `si-america-safari.zip` junto a la carpeta del proyecto. Descomprime el ZIP y abre `benve.html` para BENVE, `atenea.html` para ATENEA o `index.html` para SI.gov. Los cinco archivos incluyen sus estilos, fuentes, imágenes y JavaScript; no hace falta instalar herramientas para verlos. Conserva los archivos HTML juntos para navegar entre ellos.
 
 ## Desplegar en Vercel
 
 Importa el repositorio de GitHub y usa `main` como rama de producción. La carpeta raíz del proyecto es `./`; selecciona Node.js `24.x`. `vercel.json` configura Vite, `npm ci`, `npm run build` y la salida `dist`, y conserva las rutas con `/` al final.
 
-BENVE está en `/benve/`. Las otras páginas son `/`, `/initiatives/education/` y `/initiatives/presidential-challenge/`. Cada ruta tiene su propio HTML compilado. Al subir cambios a `main`, Vercel genera un nuevo despliegue si la integración con GitHub está activa.
+BENVE está en `/benve/` y ATENEA en `/atenea/`. Las otras páginas son `/`, `/initiatives/education/` y `/initiatives/presidential-challenge/`. Cada ruta tiene su propio HTML compilado. Al subir cambios a `main`, Vercel genera un nuevo despliegue si la integración con GitHub está activa.
 
-Las cuatro páginas incluyen botones fijos a la derecha para pasar entre SI.gov, BENVE, Educación y Challenge. El botón de la página actual aparece resaltado.
+Las cinco páginas incluyen botones fijos a la derecha para pasar entre SI.gov, BENVE, Educación, Challenge y ATENEA. El botón de la página actual aparece resaltado.
 
 ## Interacciones
 
@@ -54,10 +56,12 @@ Las cuatro páginas incluyen botones fijos a la derecha para pasar entre SI.gov,
 
 - `src/site.js`: geometrías, proyección, físicas, cursor, transiciones y navegación, adaptados del JavaScript público del sitio de referencia.
 - `src/benve.js` y `src/benve.css`: logo giratorio, palabra BENVE, vestido y transición de una sola nube al hacer scroll.
+- `src/atenea.js`, `src/atenea.css` y `public/images/atenea-mark.svg`: geometría proporcional y partículas interactivas del logo ATENEA.
 - `src/style.css`: estilos de la referencia y fuentes locales Instrument Serif e Instrument Sans.
 - `index.html` e `initiatives/*/index.html`: contenido y estructura de las páginas.
 - `public/images/`: logotipo y sello originales, almacenados localmente.
 - `tests/particle.spec.js`: pruebas funcionales de partículas, navegación, móvil y movimiento reducido.
-- `tests/benve.spec.js`: giro, tres figuras, scroll reversible, mouse, teclado, móvil y movimiento reducido de BENVE.
+- `tests/benve.spec.js`: giro, cuatro figuras, scroll reversible, mouse, teclado, móvil y movimiento reducido de BENVE.
+- `tests/atenea.spec.js`: proporciones del logo, tres A, color, navegación, mouse, teclado, móvil y movimiento reducido de ATENEA.
 
 La página funciona con recursos locales. Los enlaces informativos externos apuntan a sus destinos originales. El video del Challenge utiliza el enlace y la vista alternativa del sitio original. El formulario conserva su diseño y valida el correo, pero no está conectado a un servicio de suscripción; indica que se visite SI.gov para suscribirse.

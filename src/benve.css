@@ -323,7 +323,7 @@ button {
     height: 44vw;
   }
   [data-particle-scene="word"] .benve-anchor-word {
-    transform: translateY(max(0px, calc(340px - 50svh)));
+    transform: translateY(max(0px, calc(380px - 50svh)));
   }
 }
 @media (max-width: 900px) {

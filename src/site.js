@@ -895,6 +895,7 @@ const __si = () => {
         }, 160)));
     }));
   const B = {
+    atenea: { label: "ATENEA", menu: "ATENEA" },
     benve: { label: "BENVE", menu: "BENVE" },
     "": {
       label: "Home",
@@ -1149,6 +1150,7 @@ const __si = () => {
   const D = a("#view"),
     Y = a("#menuList"),
     O = {
+      atenea: "/atenea",
       benve: "/benve",
       "": "/",
       education: "/initiatives/education",

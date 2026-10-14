@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 const entry = (path) => fileURLToPath(new URL(path, import.meta.url));
 const directoryRoutes = new Set([
   "/benve",
+  "/atenea",
   "/initiatives/education",
   "/initiatives/presidential-challenge",
 ]);
@@ -28,6 +29,7 @@ export default defineConfig({
       input: {
         home: entry("./index.html"),
         benve: entry("./benve/index.html"),
+        atenea: entry("./atenea/index.html"),
         education: entry("./initiatives/education/index.html"),
         challenge: entry("./initiatives/presidential-challenge/index.html"),
       },
