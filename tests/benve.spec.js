@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 const errorsByPage = new WeakMap();
-const order = ["logo", "word", "dress"];
+const order = ["logo", "word", "dress", "dress-two"];
 
 test.beforeEach(async ({ page }) => {
   const errors = [];
@@ -70,6 +70,7 @@ async function pixels(page) {
     let centerDrawn = 0;
     let offWhite = 0;
     let offPalette = 0;
+    const paletteOutliers = [];
     const colors = { white: 0, lavender: 0, periwinkle: 0 };
     let sumX = 0;
     let sumY = 0;
@@ -87,7 +88,10 @@ async function pixels(page) {
       if (red < 245 || green < 245 || blue < 245) offWhite++;
       else colors.white++;
       // The two opaque dress tints may blend toward white during the morph.
-      if (red < 169 || green < 186 || blue < 245) offPalette++;
+      if (red < 169 || green < 186 || blue < 245) {
+        offPalette++;
+        if (paletteOutliers.length < 10) paletteOutliers.push({ rgba: [red, green, blue, data[offset + 3]], x: offset / 4 % width, y: Math.floor(offset / 4 / width) });
+      }
       if (Math.abs(red - 222) <= 8 && Math.abs(green - 214) <= 8 && blue >= 247) colors.lavender++;
       if (Math.abs(red - 174) <= 8 && Math.abs(green - 191) <= 8 && blue >= 247) colors.periwinkle++;
       const position = offset / 4;
@@ -103,9 +107,10 @@ async function pixels(page) {
       maxY = Math.max(maxY, y);
     }
     return {
-      drawn, centerDrawn, offWhite, offPalette, colors, quadrants, hash, width, height,
+      drawn, centerDrawn, offWhite, offPalette, paletteOutliers, colors, quadrants, hash, width, height,
       figureWidth: (maxX - minX + 1) / state.size.dpr,
       figureHeight: (maxY - minY + 1) / state.size.dpr,
+      bounds: { left: bounds.left + minX / state.size.dpr, right: bounds.left + maxX / state.size.dpr, top: bounds.top + minY / state.size.dpr, bottom: bounds.top + maxY / state.size.dpr },
       centroid: { x: bounds.left + sumX / drawn / state.size.dpr, y: bounds.top + sumY / drawn / state.size.dpr },
     };
   });
@@ -142,6 +147,7 @@ test("BENVE loads locally with its exact brand, a fixed canvas, and white circul
   await expect.poll(async () => (await scene(page)).maxDisplacement).toBeLessThan(6);
   const state = await scene(page);
   expect(state.shape).toBe("logo");
+  expect(state.scroll.total).toBe(3);
   expect(state.count).toBeGreaterThan(1500);
   expect(state.color).toBe("#ffffff");
   expect(state.palette).toEqual(["#ffffff"]);
@@ -188,7 +194,7 @@ test("the circular logo rotates continuously around a stable center and is drawn
   expect(draws.points).toBeGreaterThan(initial.count * 20);
 });
 
-test("scroll morphs the same cloud continuously from the right logo into BENVE and a dress on the left", async ({ page }) => {
+test("scroll morphs the same cloud through BENVE and two distinct dresses on opposite sides", async ({ page }) => {
   await openCloud(page);
   const initial = await scene(page);
   const fingerprints = new Set([(await pixels(page)).hash]);
@@ -237,20 +243,102 @@ test("scroll morphs the same cloud continuously from the right logo into BENVE a
   expect(dressImage.colors.lavender).toBeGreaterThan(20);
   expect(dressImage.colors.periwinkle).toBeGreaterThan(20);
   fingerprints.add(dressImage.hash);
-  expect(fingerprints.size).toBe(5);
+  await showMiddle(page, "dress", "dress-two");
+  const dressesMiddle = await scene(page);
+  const dressesMiddleImage = await pixels(page);
+  expect(dressesMiddle.count).toBe(initial.count);
+  expect(dressesMiddle.scroll.progress).toBeCloseTo(2.5, 2);
+  expect(dressesMiddle.dressWeight).toBe(1);
+  expect(dressesMiddleImage.offPalette).toBe(0);
+  expect(dressesMiddleImage.offWhite).toBeGreaterThan(20);
+  fingerprints.add(dressesMiddleImage.hash);
+  await showShape(page, "dress-two");
+  const dressTwo = await scene(page);
+  const dressTwoImage = await pixels(page);
+  expect(dressTwo.count).toBe(initial.count);
+  expect(dressTwo.dressWeight).toBe(1);
+  expect(dressTwo.palette).toEqual(["#ffffff", "#ded6ff", "#aebfff"]);
+  expect(dressTwo.center.x).toBeGreaterThan(dressTwo.size.width / 2);
+  expect(dressTwo.center.y).toBeGreaterThan(dress.center.y);
+  expect(dressTwoImage.centroid.x).toBeGreaterThan(dressTwo.size.width / 2);
+  expect(dressTwoImage.figureHeight).toBeGreaterThan(dressTwoImage.figureWidth * 1.15);
+  expect(dressTwoImage.drawn).toBeGreaterThan(1500);
+  expect(dressTwoImage.offPalette).toBe(0);
+  expect(dressTwoImage.colors.white).toBeGreaterThan(100);
+  expect(dressTwoImage.colors.lavender).toBeGreaterThan(20);
+  expect(dressTwoImage.colors.periwinkle).toBeGreaterThan(20);
+  fingerprints.add(dressTwoImage.hash);
+  expect(fingerprints.size).toBe(7);
   const bounds = await page.locator("#benve-canvas").boundingBox();
   expect(bounds.x).toBe(0);
   expect(bounds.y).toBe(0);
-  expect(bounds.width).toBe(dress.size.width);
-  expect(bounds.height).toBe(dress.size.height);
-  for (const shape of ["word", "logo"]) {
+  expect(bounds.width).toBe(dressTwo.size.width);
+  expect(bounds.height).toBe(dressTwo.size.height);
+  for (const shape of ["dress", "word", "logo"]) {
     await showShape(page, shape);
     const reversed = await scene(page);
     expect(reversed.count).toBe(initial.count);
-    expect(reversed.dressWeight).toBe(0);
-    expect(reversed.palette).toEqual(["#ffffff"]);
-    expect((await pixels(page)).offWhite).toBe(0);
+    if (shape === "dress") {
+      expect(reversed.dressWeight).toBe(1);
+      expect(reversed.palette).toEqual(["#ffffff", "#ded6ff", "#aebfff"]);
+      const reversedDress = await pixels(page);
+      expect(reversedDress.offPalette).toBe(0);
+      expect(reversedDress.colors.lavender).toBeGreaterThan(20);
+      expect(reversedDress.colors.periwinkle).toBeGreaterThan(20);
+    } else {
+      expect(reversed.dressWeight).toBe(0);
+      expect(reversed.palette).toEqual(["#ffffff"]);
+      expect((await pixels(page)).offWhite).toBe(0);
+    }
   }
+});
+
+test("BENVE remains readable while its word points respond to the mouse and return to their silhouette", async ({ page }) => {
+  await openCloud(page);
+  await showShape(page, "word");
+  await expect.poll(async () => (await scene(page)).maxDisplacement).toBeLessThan(0.5);
+  const initial = await scene(page);
+  expect(initial.wordWeight).toBe(1);
+  expect(initial.wordContainmentLimit).toBeGreaterThanOrEqual(2);
+  expect(initial.wordContainmentLimit).toBeLessThanOrEqual(6);
+  const before = await pixels(page);
+  const inkPoint = await page.locator("#benve-canvas").evaluate((canvas) => {
+    const state = window.__benveScene.getState();
+    const bounds = canvas.getBoundingClientRect();
+    const desiredX = state.center.x - state.targetBounds.width * 0.15;
+    const desiredY = state.center.y;
+    const data = canvas.getContext("2d").getImageData(0, 0, canvas.width, canvas.height).data;
+    let closest = null;
+    let distance = Infinity;
+    for (let y = 0; y < canvas.height; y++) {
+      for (let x = 0; x < canvas.width; x++) {
+        if (data[(y * canvas.width + x) * 4 + 3] < 150) continue;
+        const point = { x: bounds.left + x / state.size.dpr, y: bounds.top + y / state.size.dpr };
+        const candidateDistance = (point.x - desiredX) ** 2 + (point.y - desiredY) ** 2;
+        if (candidateDistance < distance) { closest = point; distance = candidateDistance; }
+      }
+    }
+    return closest;
+  });
+  expect(inkPoint).not.toBeNull();
+  await page.mouse.move(inkPoint.x, inkPoint.y, { steps: 8 });
+  await expect.poll(async () => (await scene(page)).pointer.inside).toBe(true);
+  await expect.poll(async () => (await scene(page)).maxDisplacement).toBeGreaterThan(0.2);
+  const moved = await scene(page);
+  const image = await pixels(page);
+  expect(moved.shape).toBe("word");
+  expect(moved.count).toBe(initial.count);
+  expect(moved.maxDisplacement).toBeLessThanOrEqual(moved.wordContainmentLimit + 0.1);
+  expect(image.hash).not.toBe(before.hash);
+  expect(image.offWhite).toBe(0);
+  expect(image.drawn).toBeGreaterThan(before.drawn * 0.75);
+  expect(image.bounds.left).toBeGreaterThanOrEqual(before.bounds.left - 8);
+  expect(image.bounds.right).toBeLessThanOrEqual(before.bounds.right + 8);
+  expect(image.bounds.top).toBeGreaterThanOrEqual(before.bounds.top - 8);
+  expect(image.bounds.bottom).toBeLessThanOrEqual(before.bounds.bottom + 8);
+  await page.mouse.move(-10, -10);
+  await expect.poll(async () => (await scene(page)).pointer.inside).toBe(false);
+  await expect.poll(async () => (await scene(page)).maxDisplacement).toBeLessThan(0.5);
 });
 
 test("mouse movement visibly tilts and displaces points, which settle after leaving", async ({ page }) => {
@@ -316,7 +404,7 @@ for (const width of [390, 320]) {
   test.describe(`BENVE mobile ${width}px`, () => {
     test.use({ viewport: { width, height: 844 }, isMobile: true, hasTouch: true });
 
-    test("fits the brand and all three scenes without overflow and responds to touch", async ({ page }) => {
+    test("fits the brand and all four scenes without overflow and responds to touch", async ({ page }) => {
       await openCloud(page);
       await expect.poll(async () => (await scene(page)).maxDisplacement).toBeLessThan(6);
       const heading = page.getByRole("heading", { name: "BENVE", exact: true });
@@ -342,14 +430,14 @@ for (const width of [390, 320]) {
       await expect.poll(async () => (await scene(page)).pointer.inside).toBe(false);
       await page.locator("#benve-reset").tap();
       expect((await scene(page)).waves).toBe(0);
-      for (const shape of ["word", "dress"]) {
+      for (const shape of ["word", "dress", "dress-two"]) {
         await showShape(page, shape);
         const current = await scene(page);
         const image = await pixels(page);
         expect(current.count).toBe(initial.count);
         expect(image.drawn).toBeGreaterThan(1000);
-        if (shape === "dress") {
-          expect(image.offPalette).toBe(0);
+        if (shape.startsWith("dress")) {
+          expect(image.offPalette, JSON.stringify(image.paletteOutliers)).toBe(0);
           expect(image.colors.lavender).toBeGreaterThan(20);
           expect(image.colors.periwinkle).toBeGreaterThan(20);
         } else expect(image.offWhite).toBe(0);
@@ -389,7 +477,7 @@ test.describe("BENVE reduced motion", () => {
       expect(current.count).toBe(initial.count);
       expect(current.active).toBe(false);
       expect(image.drawn).toBeGreaterThan(1500);
-      if (shape === "dress") {
+      if (shape.startsWith("dress")) {
         expect(image.offPalette).toBe(0);
         expect(image.colors.lavender).toBeGreaterThan(20);
         expect(image.colors.periwinkle).toBeGreaterThan(20);
@@ -399,11 +487,11 @@ test.describe("BENVE reduced motion", () => {
       expect((await scene(page)).frames).toBe(current.frames);
       expect((await pixels(page)).hash).toBe(image.hash);
     }
-    expect(fingerprints.size).toBe(3);
+    expect(fingerprints.size).toBe(4);
     await page.locator("#benve-canvas").focus();
     await page.keyboard.press("Enter");
     expect((await scene(page)).waves).toBe(0);
-    expect((await scene(page)).shape).toBe("dress");
+    expect((await scene(page)).shape).toBe("dress-two");
     expect((await pixels(page)).drawn).toBeGreaterThan(1500);
     const afterKey = await scene(page);
     await page.waitForTimeout(300);

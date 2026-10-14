@@ -107,6 +107,11 @@ button {
 .benve-panel-left .benve-anchor {
   grid-column: 1;
 }
+.benve-panel-right .benve-anchor {
+  grid-column: 2;
+  align-self: end;
+  height: min(70svh, calc(100svh - 264px), 680px);
+}
 .benve-copy {
   position: relative;
   padding-left: 12px;
@@ -317,9 +322,20 @@ button {
   .benve-anchor-word {
     height: 44vw;
   }
+  [data-particle-scene="word"] .benve-anchor-word {
+    transform: translateY(max(0px, calc(340px - 50svh)));
+  }
 }
 @media (max-width: 900px) {
   [data-particle-scene="dress"] .benve-anchor {
+    height: min(72svh, calc(100svh - 200px), 760px);
+    max-height: none;
+  }
+  .benve-panel-right .benve-anchor {
+    grid-column: 1;
+    justify-self: end;
+    align-self: center;
+    width: 88%;
     height: min(72svh, calc(100svh - 200px), 760px);
     max-height: none;
   }

@@ -1,5 +1,5 @@
 // One point cloud travels through the story. All masks use complete regular
-// sampling grids. Dress colors and depth arrive with the final scroll scene.
+// sampling grids. Fabric colors and depth blend continuously between dresses.
 (() => {
   const canvas = document.querySelector("#benve-canvas");
   const context = canvas.getContext("2d");
@@ -8,20 +8,22 @@
   const motion = matchMedia("(prefers-reduced-motion: reduce)");
   const logoMask = new Image();
   const dressMask = new Image();
+  const dressTwoMask = new Image();
   logoMask.src = "/images/benve-mark.svg";
   dressMask.src = "/images/benve-dress.svg";
+  dressTwoMask.src = "/images/benve-dress-two.svg";
 
   const POINT_COLOR = "#ffffff";
   const DRESS_COLORS = ["#ffffff", "#ded6ff", "#aebfff"];
   const DRESS_RGB = DRESS_COLORS.map((color) => [1, 3, 5].map((start) =>
     parseInt(color.slice(start, start + 2), 16)
   ));
-  const NAMES = ["logo", "word", "dress"];
+  const NAMES = ["logo", "word", "dress", "dress-two"];
   const BUCKETS = 6;
-  const first = new Int32Array(BUCKETS * DRESS_COLORS.length);
+  const first = new Int32Array(BUCKETS * DRESS_COLORS.length ** 2);
   const shapes = [], layouts = [], particles = [], waves = [];
   const pointer = { x: -9999, y: -9999, nx: 0, ny: 0, inside: false };
-  const scroll = { progress: 0, total: 2, from: "logo", to: "word", mix: 0 };
+  const scroll = { progress: 0, total: NAMES.length - 1, from: "logo", to: "word", mix: 0 };
   const center = { x: 0, y: 0 };
   const targetBounds = { x: 0, y: 0, width: 0, height: 0 };
   let width = 0, height = 0, dpr = 1, diameter = 0;
@@ -33,7 +35,9 @@
   const clamp = (value, minimum, maximum) => Math.max(minimum, Math.min(maximum, value));
   const mix = (a, b, amount) => a + (b - a) * amount;
   const smooth = (value) => value * value * (3 - 2 * value);
-  const dressWeight = () => sceneIndex === 1 ? sceneMix : 0;
+  const dressWeight = () => sceneIndex >= 2 ? 1 : sceneIndex === 1 ? sceneMix : 0;
+  const wordWeight = () => sceneIndex === 0 ? sceneMix : sceneIndex === 1 ? 1 - sceneMix : 0;
+  const wordLimit = () => clamp((layouts[1]?.height || 120) * 0.05, 2, 6);
 
   function scenePalette() {
     const weight = dressWeight();
@@ -41,6 +45,20 @@
     return DRESS_RGB.map((rgb) => "#" + rgb.map((channel) =>
       Math.round(mix(255, channel, weight)).toString(16).padStart(2, "0")
     ).join(""));
+  }
+
+  function transitionPalette() {
+    // Each point keeps the color sampled from each fabric mask. Nine buckets
+    // let the same points change tint without a pop when the silhouettes morph.
+    const palette = [];
+    for (const from of DRESS_RGB) {
+      for (const to of DRESS_RGB) {
+        palette.push("#" + from.map((channel, i) =>
+          Math.round(mix(channel, to[i], sceneMix)).toString(16).padStart(2, "0")
+        ).join(""));
+      }
+    }
+    return palette;
   }
 
   function closestTone(red, green, blue) {
@@ -75,6 +93,7 @@
         shape: NAMES[sceneMix < 0.5 ? sceneIndex : sceneIndex + 1],
         center: { ...center }, targetBounds: { ...targetBounds },
         dressWeight: dressWeight(), palette: scenePalette(),
+        wordWeight: wordWeight(), wordContainmentLimit: wordLimit(),
       }),
     }),
   });
@@ -182,7 +201,8 @@
   function updateScroll() {
     if (!measured) return;
     const y = window.scrollY;
-    sceneIndex = y < layouts[1].top ? 0 : 1;
+    sceneIndex = 0;
+    while (sceneIndex < NAMES.length - 2 && y >= layouts[sceneIndex + 1].top) sceneIndex++;
     const start = layouts[sceneIndex].top, end = layouts[sceneIndex + 1].top;
     const progress = clamp((y - start) / Math.max(1, end - start), 0, 1);
     sceneMix = smooth(progress);
@@ -236,19 +256,27 @@
     const dt = staticFrame || !lastTimestamp ? 1 : clamp((timestamp - lastTimestamp) / 16.667, 0.3, 2);
     lastTimestamp = timestamp;
     const logoWeight = sceneIndex === 0 ? 1 - sceneMix : 0;
+    const wordPresence = wordWeight();
     if (!staticFrame) logoAngle += 0.14 * dt / 60 * logoWeight;
     const ease = staticFrame ? 1 : 1 - Math.pow(0.88, dt);
-    tiltX += ((pointer.inside ? pointer.ny * 0.04 : 0) - tiltX) * ease;
-    tiltY += ((pointer.inside ? -pointer.nx * 0.045 : 0) - tiltY) * ease;
+    const tiltStrength = mix(1, 0.3, wordPresence);
+    tiltX += ((pointer.inside ? pointer.ny * 0.04 * tiltStrength : 0) - tiltX) * ease;
+    tiltY += ((pointer.inside ? -pointer.nx * 0.045 * tiltStrength : 0) - tiltY) * ease;
     const cosZ = Math.cos(logoAngle), sinZ = Math.sin(logoAngle);
     const cosX = Math.cos(tiltX), sinX = Math.sin(tiltX);
     const cosY = Math.cos(tiltY), sinY = Math.sin(tiltY);
     const from = shapes[sceneIndex], to = shapes[sceneIndex + 1];
     const fromLayout = layouts[sceneIndex], toLayout = layouts[sceneIndex + 1];
-    const fabricWeight = dressWeight();
-    const palette = scenePalette();
-    const influence = Math.min(94, Math.max(52, diameter * 0.2));
-    const damping = Math.pow(0.83, dt);
+    const palette = transitionPalette();
+    const influence = mix(Math.min(94, Math.max(52, diameter * 0.2)),
+      clamp(layouts[1].height * 0.38, 20, 36), wordPresence);
+    const pointerStrength = mix(1.9, 0.5, wordPresence);
+    const waveStrength = mix(4.2, 0.9, wordPresence);
+    const spring = mix(0.105, 0.19, wordPresence);
+    const damping = Math.pow(mix(0.83, 0.78, wordPresence), dt);
+    // The bound opens continuously away from the word, so scrolling does not
+    // introduce a threshold while letters retain their silhouette under input.
+    const maxStretch = wordLimit() + 38 * (1 - wordPresence) / Math.max(wordPresence, 0.001);
     const radius = clamp(mix(from.spacing * fromLayout.width, to.spacing * toLayout.width, sceneMix) * 0.28, 0.72, 1.3);
     first.fill(-1);
     maxDisplacement = 0;
@@ -269,7 +297,9 @@
       }
       const modelX = mix(ax * fromLayout.width, to.points[offset] * toLayout.width, sceneMix);
       const modelY = mix(ay * fromLayout.width, to.points[offset + 1] * toLayout.width, sceneMix);
-      const modelZ = shapes[2].relief[i] * layouts[2].width * fabricWeight;
+      const fromRelief = sceneIndex >= 2 ? from.relief[i] * fromLayout.width : 0;
+      const toRelief = sceneIndex + 1 >= 2 ? to.relief[i] * toLayout.width : 0;
+      const modelZ = mix(fromRelief, toRelief, sceneMix);
       const x = modelX * cosY + modelZ * sinY;
       const zAfterY = -modelX * sinY + modelZ * cosY;
       const y = modelY * cosX - zAfterY * sinX;
@@ -280,7 +310,7 @@
       const dx = targetX - pointer.x, dy = targetY - pointer.y;
       const distance = Math.hypot(dx, dy);
       if (pointer.inside && distance < influence) {
-        const power = Math.pow(1 - distance / influence, 1.7) * 1.9;
+        const power = Math.pow(1 - distance / influence, 1.7) * pointerStrength;
         forceX = (distance > 0.1 ? dx / distance : 1) * power;
         forceY = (distance > 0.1 ? dy / distance : 0) * power;
       }
@@ -288,8 +318,8 @@
         const wx = point.x - wave.x, wy = point.y - wave.y;
         const distance = Math.hypot(wx, wy) || 1;
         if (Math.abs(distance - wave.radius) < 25) {
-          forceX += wx / distance * 4.2;
-          forceY += wy / distance * 4.2;
+          forceX += wx / distance * waveStrength;
+          forceY += wy / distance * waveStrength;
         }
       }
       if (staticFrame) {
@@ -297,15 +327,26 @@
         point.y = targetY + forceY * 2;
         point.vx = point.vy = 0;
       } else {
-        point.vx = (point.vx + ((targetX - point.x) * 0.105 + forceX) * dt) * damping;
-        point.vy = (point.vy + ((targetY - point.y) * 0.105 + forceY) * dt) * damping;
+        point.vx = (point.vx + ((targetX - point.x) * spring + forceX) * dt) * damping;
+        point.vy = (point.vy + ((targetY - point.y) * spring + forceY) * dt) * damping;
         point.x += point.vx * dt;
         point.y += point.vy * dt;
       }
+      const stretchX = point.x - targetX, stretchY = point.y - targetY;
+      const stretch = Math.hypot(stretchX, stretchY);
+      if (stretch > maxStretch) {
+        const scale = maxStretch / stretch;
+        point.x = targetX + stretchX * scale;
+        point.y = targetY + stretchY * scale;
+        point.vx *= scale;
+        point.vy *= scale;
+      }
       point.radius = radius;
       const depth = clamp(0.5 + z / Math.max(diameter * 0.2, 1), 0, 1);
-      const tone = fabricWeight > 0 ? shapes[2].tones[i] : 0;
-      const bucket = tone * BUCKETS + Math.min(BUCKETS - 1, Math.floor(depth * BUCKETS));
+      const fromTone = sceneIndex >= 2 ? from.tones[i] : 0;
+      const toTone = sceneIndex + 1 >= 2 ? to.tones[i] : 0;
+      const tonePair = fromTone * DRESS_COLORS.length + toTone;
+      const bucket = tonePair * BUCKETS + Math.min(BUCKETS - 1, Math.floor(depth * BUCKETS));
       point.next = first[bucket];
       first[bucket] = i;
       maxDisplacement = Math.max(maxDisplacement, Math.hypot(point.x - targetX, point.y - targetY));
@@ -417,10 +458,10 @@
   async function initialize() {
     try {
       await Promise.all([
-        logoMask.decode(), dressMask.decode(),
+        logoMask.decode(), dressMask.decode(), dressTwoMask.decode(),
         document.fonts.load('600 300px "Instrument Sans Variable"'),
       ]);
-      buildCloud([sampleMask(logoMask), sampleMask(wordMask()), sampleMask(dressMask)]);
+      buildCloud([sampleMask(logoMask), sampleMask(wordMask()), sampleMask(dressMask), sampleMask(dressTwoMask)]);
       ready = true;
       resize();
       metrics();

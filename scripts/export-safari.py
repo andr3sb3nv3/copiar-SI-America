@@ -106,7 +106,7 @@ for filename, (source, script_name) in pages.items():
     "1. Descomprime si-america-safari.zip.\n"
     "2. Abre benve.html con Safari para ver BENVE sobre fondo azul.\n"
     "3. Abre index.html para ver la replica de SI.gov.\n"
-    "4. Baja por la pagina: el logo gira y se transforma en BENVE y luego en un vestido.\n"
+    "4. Baja por la pagina: el logo gira y se transforma en BENVE y luego en dos vestidos.\n"
     "5. Move el mouse sobre los puntos y hace clic para crear ondas.\n\n"
     "No necesitas instalar Node ni iniciar un servidor. Conserva los cuatro archivos HTML juntos para navegar entre las paginas.\n"
 )
