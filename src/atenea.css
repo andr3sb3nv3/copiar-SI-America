@@ -4,19 +4,23 @@
 :root {
   font-family: "Instrument Sans Variable", Arial, sans-serif;
   color: #ffffff;
-  background: #041827;
+  background: #082339;
   font-synthesis: none;
   -webkit-font-smoothing: antialiased;
-  --page-nav-surface: #041827ed;
-  --page-nav-ink: #041827;
+  --page-nav-surface: #082339ed;
+  --page-nav-ink: #082339;
 }
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-body { margin: 0; background: #041827; overflow-x: clip; }
+body {
+  margin: 0;
+  background: #082339;
+  background-image: radial-gradient(ellipse at 46% 48%, #0c2a41 0%, #082339 65%, #072035 100%);
+  overflow-x: clip;
+}
 a { color: inherit; text-decoration: none; }
 button { color: inherit; font: inherit; cursor: pointer; }
 :focus-visible { outline: 2px solid #39ff14; outline-offset: 6px; }
-::selection { color: #041827; background: #39ff14; }
+::selection { color: #082339; background: #39ff14; }
 .sr-only {
   position: absolute;
   width: 1px;
@@ -39,7 +43,6 @@ button { color: inherit; font: inherit; cursor: pointer; }
 .atenea-back { display: flex; gap: 12px; align-items: center; font-size: 11px; color: #ffffffb8; }
 .atenea-back svg { width: 14px; height: 14px; }
 .atenea-main {
-  --intro-opacity: 1;
   position: relative;
 }
 .atenea-panel {
@@ -61,17 +64,8 @@ button { color: inherit; font: inherit; cursor: pointer; }
   overflow: hidden;
 }
 .atenea-anchor {
-  width: min(100%, 760px);
-  height: min(72svh, calc(100svh - 232px), 700px);
-}
-.atenea-panel-left {
-  align-items: flex-end;
-  justify-content: flex-start;
-  padding-bottom: clamp(96px, 15svh, 150px);
-}
-.atenea-panel-left .atenea-anchor {
-  width: min(65%, 760px);
-  height: min(34svh, 340px);
+  width: min(100%, 530px);
+  height: min(62svh, calc(100svh - 232px), 560px);
 }
 #atenea-canvas { display: block; width: 100%; height: 100%; touch-action: pan-y; outline-offset: -5px; }
 .atenea-cursor {
@@ -86,18 +80,6 @@ button { color: inherit; font: inherit; cursor: pointer; }
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s;
-}
-.atenea-scroll-cue {
-  position: absolute;
-  left: 64px;
-  bottom: 94px;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 10px;
-  color: #ffffff8f;
-  opacity: var(--intro-opacity);
 }
 .atenea-footer {
   position: fixed;
@@ -117,10 +99,7 @@ button { color: inherit; font: inherit; cursor: pointer; }
 @media (max-width: 900px) {
   .atenea-header { height: 86px; padding: 0 32px; }
   .atenea-panel { padding: 96px 160px 100px 32px; }
-  .atenea-anchor { height: min(72svh, calc(100svh - 232px), 700px); }
-  .atenea-panel-left { padding-bottom: clamp(90px, 15svh, 124px); }
-  .atenea-panel-left .atenea-anchor { width: 82%; height: min(34svh, 290px); }
-  .atenea-scroll-cue { left: 32px; bottom: 90px; }
+  .atenea-anchor { height: min(62svh, calc(100svh - 232px), 560px); }
   .atenea-footer { padding: 18px 32px; min-height: 78px; }
 }
 @media (max-width: 500px) {
@@ -129,9 +108,6 @@ button { color: inherit; font: inherit; cursor: pointer; }
   .atenea-back { font-size: 10px; gap: 8px; }
   .atenea-panel { padding: 100px 108px 100px 24px; }
   .atenea-anchor { height: min(88vw, calc(100svh - 228px)); }
-  .atenea-panel-left { padding: 100px 24px 90px; }
-  .atenea-panel-left .atenea-anchor { width: 100%; height: min(25svh, 180px); }
-  .atenea-scroll-cue { left: 24px; bottom: 94px; font-size: 9px; gap: 9px; }
   .atenea-footer { padding: 18px 24px; gap: 20px; }
   .atenea-hint { font-size: 9px; gap: 7px; }
 }
@@ -139,6 +115,5 @@ button { color: inherit; font: inherit; cursor: pointer; }
   .atenea-cursor { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
   *, *::before, *::after { transition: none !important; }
 }

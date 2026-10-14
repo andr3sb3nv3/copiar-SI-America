@@ -1,36 +1,33 @@
-// A single cloud keeps the source artwork's proportions while travelling from
-// the logo to the two-line message. Only the offscreen masks contain images.
+// A clean, evenly spaced point lattice preserves the original triangle.
+// The source image is used only by the offscreen sampling mask.
 (() => {
   const canvas = document.querySelector("#atenea-canvas");
   const context = canvas?.getContext("2d");
   if (!canvas || !context) return;
 
   const cursor = document.querySelector(".atenea-cursor");
-  const story = document.querySelector("#atenea-story");
   const motion = matchMedia("(prefers-reduced-motion: reduce)");
   const logoMask = new Image();
   logoMask.src = "/images/atenea-mark.svg";
 
   const COLOR = "#39ff14";
   const BUCKETS = 6;
-  const NAMES = ["logo", "marketing"];
   const ENTRY_DURATION = 1400;
   const first = new Int32Array(BUCKETS);
-  const shapes = [], layouts = [], particles = [], waves = [];
+  const particles = [], waves = [];
   const pointer = { x: -9999, y: -9999, nx: 0, ny: 0, inside: false };
   const sourceBounds = { x: 0, y: 0, width: 0, height: 0 };
   const bounds = { x: 0, y: 0, width: 0, height: 0 };
   const center = { x: 0, y: 0 };
-  const scroll = { progress: 0, total: 1, from: "logo", to: "marketing", mix: 0 };
+  const scroll = Object.freeze({ progress: 0, total: 0, from: "logo", to: "logo", mix: 0 });
   const entry = { progress: 0, complete: false };
   let width = 0, height = 0, dpr = 1;
-  let logoWidth = 0, logoHeight = 0, sourceAspect = 1;
+  let logoWidth = 0, logoHeight = 0, sourceAspect = 1, sampleSpacing = 1;
   let frame = 0, frames = 0, lastTimestamp = 0, entryStarted = 0;
   let tiltX = 0, tiltY = 0, maxDisplacement = 0;
   let ready = false, measured = false, reduced = motion.matches;
 
   const clamp = (value, minimum, maximum) => Math.max(minimum, Math.min(maximum, value));
-  const mix = (from, to, amount) => from + (to - from) * amount;
   const smooth = (value) => value * value * (3 - 2 * value);
 
   function metrics() {
@@ -39,7 +36,7 @@
     canvas.dataset.particleFrames = String(frames);
     canvas.dataset.particleReducedMotion = String(reduced);
     canvas.dataset.particleActive = String(ready && !reduced && !document.hidden);
-    canvas.dataset.particleShape = scroll.mix < 0.5 ? "ATENEA" : "marketing";
+    canvas.dataset.particleShape = "triangle";
     canvas.dataset.particleEntryComplete = String(entry.complete);
   }
 
@@ -55,13 +52,13 @@
         size: { width, height, dpr, logoWidth, logoHeight },
         bounds: { ...bounds }, targetBounds: { ...bounds },
         sourceBounds: { ...sourceBounds }, sourceAspect,
-        shape: scroll.mix < 0.5 ? "ATENEA" : "marketing",
+        shape: "triangle",
         scroll: { ...scroll }, center: { ...center }, entry: { ...entry },
       }),
     }),
   });
 
-  function sampleMask(source, density, original = false) {
+  function sampleMask(source, density) {
     const surface = document.createElement("canvas");
     surface.width = source.naturalWidth || source.width;
     surface.height = source.naturalHeight || source.height;
@@ -79,13 +76,12 @@
     }
     if (filled < 1000) throw new Error("The ATENEA particle mask is empty.");
     const maskWidth = right - left + 1, maskHeight = bottom - top + 1;
-    if (original) {
-      Object.assign(sourceBounds, { x: left, y: top, width: maskWidth, height: maskHeight });
-      sourceAspect = maskWidth / maskHeight;
-    }
+    Object.assign(sourceBounds, { x: left, y: top, width: maskWidth, height: maskHeight });
+    sourceAspect = maskWidth / maskHeight;
     // Bounds come from the complete source artwork. The interior test removes
     // only edge fragments whose dots would protrude into a counter or gap.
-    const spacing = Math.sqrt(filled / (density * 1.08));
+    const rowRatio = Math.sqrt(3) / 2;
+    const spacing = Math.sqrt(filled / (density * rowRatio * 1.08));
     const inset = Math.max(1.25, spacing * 0.43);
     const alpha = (x, y) => {
       const px = Math.round(x), py = Math.round(y);
@@ -101,10 +97,12 @@
       return true;
     };
     const points = [];
-    // Keep the full regular grid, in row order, rather than randomly dropping
-    // samples. Thin bars and both custom A shapes retain even coverage.
-    for (let y = top + spacing / 2; y <= bottom; y += spacing) {
-      for (let x = left + spacing / 2; x <= right; x += spacing) {
+    // Alternating rows form an even triangular lattice. Every interior sample
+    // is retained, making the sloping edges and curved base read consistently.
+    let row = 0;
+    for (let y = top + spacing / 2; y <= bottom; y += spacing * rowRatio, row++) {
+      const rowOffset = row % 2 ? spacing / 2 : 0;
+      for (let x = left + spacing / 2 + rowOffset; x <= right; x += spacing) {
         if (!interior(x, y)) continue;
         points.push({
           x: (x - left - maskWidth / 2) / maskWidth,
@@ -116,35 +114,13 @@
     return { points, aspect: maskHeight / maskWidth, spacing: spacing / maskWidth };
   }
 
-  function marketingMask() {
-    const surface = document.createElement("canvas");
-    surface.width = 1200;
-    surface.height = 650;
-    const maskContext = surface.getContext("2d");
-    maskContext.fillStyle = "#ffffff";
-    maskContext.font = '700 220px "Instrument Sans Variable", Arial, sans-serif';
-    maskContext.textAlign = "left";
-    maskContext.textBaseline = "alphabetic";
-    maskContext.fillText("Marketing", 32, 265);
-    maskContext.fillText("Digital", 32, 545);
-    return surface;
-  }
-
-  function buildCloud(masks) {
-    const count = Math.max(...masks.map((mask) => mask.points.length));
-    for (const mask of masks) {
-      const points = new Float32Array(count * 2);
-      for (let i = 0; i < count; i++) {
-        // Repeating evenly spaced samples keeps every original grid cell and
-        // allows both masks to use exactly the same particle identities.
-        const sample = mask.points[Math.floor(i * mask.points.length / count)];
-        points[i * 2] = sample.x;
-        points[i * 2 + 1] = sample.y;
-      }
-      shapes.push({ points, aspect: mask.aspect, spacing: mask.spacing });
-    }
-    for (let i = 0; i < count; i++) {
+  function buildCloud(sampled) {
+    sampleSpacing = sampled.spacing;
+    for (let i = 0; i < sampled.points.length; i++) {
+      const sample = sampled.points[i];
       particles.push({
+        modelX: sample.x, modelY: sample.y,
+        modelZ: Math.sin(sample.x * Math.PI * 2) * Math.cos(sample.y * Math.PI) * 0.004,
         x: 0, y: 0, vx: 0, vy: 0, next: -1,
         entryDelay: ((i * 37) % 101) / 101 * 0.14,
         entryLift: Math.sin(i * 0.63) * 18,
@@ -157,57 +133,27 @@
     entry.complete = true;
   }
 
-  function measureLayouts() {
-    if (!shapes.length) return;
-    const pageY = window.scrollY;
-    for (let i = 0; i < NAMES.length; i++) {
-      const panel = document.querySelector('[data-atenea-scene="' + NAMES[i] + '"]');
-      const anchor = document.querySelector('[data-atenea-anchor="' + NAMES[i] + '"]');
-      const panelRect = panel?.getBoundingClientRect();
-      const rect = anchor?.getBoundingClientRect();
-      const aspect = shapes[i].aspect;
-      const availableWidth = rect?.width || width * (i ? 0.6 : 0.76);
-      const availableHeight = rect?.height || height * 0.7;
-      const shapeWidth = Math.max(40, Math.min(
-        availableWidth * 0.98, availableHeight * 0.94 / aspect, i ? 1000 : 800
-      ));
-      const shapeHeight = shapeWidth * aspect;
-      const marginX = Math.min(width / 2, shapeWidth / 2 + 10);
-      const marginY = Math.min(height / 2, shapeHeight / 2 + 10);
-      const x = rect ? rect.left + rect.width / 2 : width / 2;
-      // Each anchor describes its final viewport position within its panel.
-      // Subtracting the panel top avoids sending the logo offscreen on scroll.
-      const y = rect && panelRect ? rect.top - panelRect.top + rect.height / 2 : height / 2;
-      layouts[i] = {
-        top: panelRect ? panelRect.top + pageY : i * height,
-        x: clamp(x, marginX, width - marginX),
-        y: clamp(y, marginY, height - marginY),
-        width: shapeWidth, height: shapeHeight,
-      };
-    }
-    logoWidth = layouts[0].width;
-    logoHeight = layouts[0].height;
+  function measureLayout() {
+    if (!particles.length) return;
+    const panel = document.querySelector('[data-atenea-scene="logo"]');
+    const anchor = document.querySelector('[data-atenea-anchor="logo"]');
+    const panelRect = panel?.getBoundingClientRect();
+    const rect = anchor?.getBoundingClientRect();
+    const availableWidth = rect?.width || width * 0.65;
+    const availableHeight = rect?.height || height * 0.7;
+    logoWidth = Math.max(40, Math.min(availableWidth * 0.98, availableHeight * 0.94 * sourceAspect, 530));
+    logoHeight = logoWidth / sourceAspect;
+    const marginX = Math.min(width / 2, logoWidth / 2 + 10);
+    const marginY = Math.min(height / 2, logoHeight / 2 + 10);
+    const x = rect ? rect.left + rect.width / 2 : width / 2;
+    const y = rect && panelRect ? rect.top - panelRect.top + rect.height / 2 : height / 2;
+    center.x = clamp(x, marginX, width - marginX);
+    center.y = clamp(y, marginY, height - marginY);
+    Object.assign(bounds, {
+      x: center.x - logoWidth / 2, y: center.y - logoHeight / 2,
+      width: logoWidth, height: logoHeight,
+    });
     measured = true;
-    updateScroll();
-  }
-
-  function updateScroll() {
-    if (!measured) return;
-    scroll.progress = clamp(
-      (window.scrollY - layouts[0].top) / Math.max(1, layouts[1].top - layouts[0].top),
-      0, 1
-    );
-    scroll.mix = smooth(scroll.progress);
-    if (scroll.progress > 0.001 || reduced) completeEntry();
-    center.x = mix(layouts[0].x, layouts[1].x, scroll.mix);
-    center.y = mix(layouts[0].y, layouts[1].y, scroll.mix);
-    bounds.width = mix(layouts[0].width, layouts[1].width, scroll.mix);
-    bounds.height = mix(layouts[0].height, layouts[1].height, scroll.mix);
-    bounds.x = center.x - bounds.width / 2;
-    bounds.y = center.y - bounds.height / 2;
-    story?.style.setProperty("--intro-opacity", String(1 - smooth(clamp(scroll.progress / 0.65, 0, 1))));
-    if (ready && reduced && !document.hidden) render(performance.now(), true);
-    metrics();
   }
 
   function resize() {
@@ -218,7 +164,7 @@
     canvas.width = Math.round(width * dpr);
     canvas.height = Math.round(height * dpr);
     context.setTransform(dpr, 0, 0, dpr, 0, 0);
-    measureLayouts();
+    measureLayout();
     if (!ready) return;
     render(performance.now(), true);
     start();
@@ -242,6 +188,7 @@
     if (!ready || !measured) return;
     const dt = staticFrame || !lastTimestamp ? 1 : clamp((timestamp - lastTimestamp) / 16.667, 0.3, 2);
     lastTimestamp = timestamp;
+    const entryWasComplete = entry.complete;
     if (!entry.complete) {
       entry.progress = clamp((timestamp - entryStarted) / ENTRY_DURATION, 0, 1);
       if (entry.progress === 1) completeEntry();
@@ -251,9 +198,10 @@
     tiltY += ((pointer.inside ? -pointer.nx * 0.018 : 0) - tiltY) * ease;
     const cosX = Math.cos(tiltX), sinX = Math.sin(tiltX);
     const cosY = Math.cos(tiltY), sinY = Math.sin(tiltY);
-    const from = layouts[0], to = layouts[1], amount = scroll.mix;
-    const sampleSpacing = mix(shapes[0].spacing * from.width, shapes[1].spacing * to.width, amount);
-    const radius = clamp(sampleSpacing * 0.37, 0.85, 1.55);
+    const pointSpacing = sampleSpacing * logoWidth;
+    const radius = width < 700
+      ? clamp(pointSpacing * 0.30, 0.55, 0.85)
+      : clamp(pointSpacing * 0.31, 1, 1.6);
     const influence = clamp(bounds.width * 0.1, 28, 65);
     const displacementLimit = waves.length ? 8 : clamp(bounds.height * 0.009, 2, 6);
     const damping = Math.pow(0.78, dt);
@@ -268,11 +216,10 @@
     }
 
     for (let i = 0; i < particles.length; i++) {
-      const point = particles[i], offset = i * 2;
-      const modelX = mix(shapes[0].points[offset] * from.width, shapes[1].points[offset] * to.width, amount);
-      const modelY = mix(shapes[0].points[offset + 1] * from.width, shapes[1].points[offset + 1] * to.width, amount);
-      const modelZ = Math.sin(shapes[0].points[offset] * Math.PI * 2)
-        * Math.cos(shapes[0].points[offset + 1] * Math.PI) * from.width * 0.004 * (1 - amount);
+      const point = particles[i];
+      const modelX = point.modelX * logoWidth;
+      const modelY = point.modelY * logoWidth;
+      const modelZ = point.modelZ * logoWidth;
       const x = modelX * cosY + modelZ * sinY;
       const zAfterY = -modelX * sinY + modelZ * cosY;
       const y = modelY * cosX - zAfterY * sinX;
@@ -346,7 +293,7 @@
       cursor.style.opacity = pointer.inside ? "1" : "0";
     }
     frames++;
-    if (staticFrame || frames % 20 === 0 || frames === 1 || entry.complete) metrics();
+    if (staticFrame || frames % 20 === 0 || frames === 1 || (!entryWasComplete && entry.complete)) metrics();
   }
 
   function tick(timestamp) {
@@ -412,7 +359,6 @@
     leavePointer();
     if (ready && !document.hidden) render(performance.now(), true);
   });
-  window.addEventListener("scroll", updateScroll, { passive: true });
   window.addEventListener("resize", resize, { passive: true });
   motion.addEventListener("change", (event) => {
     reduced = event.matches;
@@ -438,15 +384,9 @@
 
   async function initialize() {
     try {
-      await Promise.all([
-        logoMask.decode(),
-        document.fonts.load('700 220px "Instrument Sans Variable"', "Marketing Digital"),
-      ]);
-      const density = innerWidth < 700 ? 4500 : 6000;
-      buildCloud([
-        sampleMask(logoMask, density, true),
-        sampleMask(marketingMask(), density),
-      ]);
+      await logoMask.decode();
+      const density = innerWidth < 700 ? 2800 : 4200;
+      buildCloud(sampleMask(logoMask, density));
       ready = true;
       entryStarted = performance.now();
       if (reduced || window.scrollY > 0) completeEntry();

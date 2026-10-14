@@ -1,15 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="834" height="834" viewBox="0 0 834 834" fill="#39ff14" role="img" aria-labelledby="atenea-title atenea-description">
-  <title id="atenea-title">ATENEA</title>
-  <desc id="atenea-description">Símbolo triangular sobre el nombre ATENEA. Las dos A del nombre conservan los ángulos y la base curva del símbolo.</desc>
-  <defs>
-    <path id="atenea-letter-a" fill-rule="evenodd" d="M212 578 166 670 173 684 Q212 657 250 684 L257 670 Z M212 614 188 661 Q212 652 235 661 Z"/>
-    <path id="atenea-letter-e" d="M332 578H395L390 595H337ZM337 622H390V639H337ZM337 666H390L395 684H332Z"/>
-  </defs>
+  <title id="atenea-title">Símbolo de ATENEA</title>
+  <desc id="atenea-description">Triángulo abierto con base curva. Conserva las proporciones del símbolo original de ATENEA.</desc>
   <path fill-rule="evenodd" d="M421 150 261 468 283 514 Q416 434 550 514 L572 468 Z M420 272 335 439 Q417 406 500 439 Z"/>
-  <use href="#atenea-letter-a"/>
-  <path d="M252 578H315L310 595H292V684H275V595H257Z"/>
-  <use href="#atenea-letter-e"/>
-  <path d="M415 578H480V684H463V595H432V684H415Z"/>
-  <use href="#atenea-letter-e" x="168"/>
-  <use href="#atenea-letter-a" x="411"/>
 </svg>

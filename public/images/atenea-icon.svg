@@ -1,4 +1,4 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="ATENEA">
-  <rect width="64" height="64" rx="14" fill="#174af5"/>
+  <rect width="64" height="64" rx="14" fill="#082339"/>
   <path fill="#39ff14" fill-rule="evenodd" transform="translate(-15.08 -5.5) scale(.113)" d="M421 150 261 468 283 514 Q416 434 550 514 L572 468 Z M420 272 335 439 Q417 406 500 439 Z"/>
 </svg>
