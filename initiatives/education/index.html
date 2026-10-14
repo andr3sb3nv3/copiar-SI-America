@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Learn how the White House Task Force on SI Education is bringing SI literacy, educator training, and early exposure to America&#x27;s youth."
+    />
+    <title>SI Education | SI.gov</title>
+    <link rel="icon" href="/favicon.png" type="image/png" />
+    <link rel="stylesheet" href="/src/style.css" />
+    <script type="module" src="/src/site.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#view">Skip to content</a>
+    <canvas
+      id="field"
+      tabindex="0"
+      role="img"
+      aria-label="Interactive particle sculpture. Move to explore; press Enter to create a wave."
+    ></canvas
+    ><a class="brand" href="/" aria-label="SI.GOV home"
+      ><img src="/images/logo-white.png" crossorigin="anonymous" alt="SI.GOV"
+    /></a>
+    <div class="pagelabel" aria-hidden="true">
+      <span>si.gov</span><i></i><span id="plabel">Home</span>
+    </div>
+    <nav class="dots" id="dots" aria-label="Sections on this page"></nav>
+    <button class="orb" id="orb" aria-expanded="false" aria-controls="menu">
+      <svg viewBox="0 0 86 86" aria-hidden="true">
+        <defs>
+          <path
+            id="circ"
+            d="M43,43 m-32,0 a32,32 0 1,1 64,0 a32,32 0 1,1 -64,0"
+          />
+        </defs>
+        <text>
+          <textPath href="#circ">SUPER INTELLIGENCE · SI.GOV ·</textPath>
+        </text></svg
+      ><span id="orbTxt">Menu</span>
+    </button>
+    <nav class="menu" id="menu" aria-label="Main">
+      <div class="col">
+        <ol id="menuList"></ol>
+        <div class="meta">
+          <a href="/benve/">BENVE — logo interactivo</a>
+          <a
+            href="https://www.whitehouse.gov/edai/"
+            target="_blank"
+            rel="noopener"
+            >Pledge to America's Youth</a
+          ><a href="https://whitehouse.gov/news" target="_blank" rel="noopener"
+            >News</a
+          ><a href="https://whitehouse.gov" target="_blank" rel="noopener"
+            >The White House</a
+          >
+        </div>
+      </div>
+    </nav>
+    <main id="view" tabindex="-1" data-page="education">
+      <section
+        class="phero edu"
+        data-form="image:school;seal"
+        data-dot="Overview"
+      >
+        <span class="sr">Illustration of a schoolhouse</span>
+        <div class="col">
+          <span class="tag">Executive Order 14277</span>
+          <h1 class="d2 reveal" style="font-size: clamp(3.4rem, 10vw, 9rem)">
+            <span class="ln"><span>SI</span></span
+            ><span class="ln"><span>Education</span></span>
+          </h1>
+          <p class="lead fade" style="margin-top: 2rem; --d: 0.35">
+            In April 2025, President Donald J. Trump signed Executive Order
+            14277 to create new educational and workforce development
+            opportunities for America's youth. The goal is for America's young
+            people to gain interest and expertise in SI technology from an early
+            age, enabling America to maintain global dominance in this
+            technological revolution for future generations.
+          </p>
+        </div>
+      </section>
+      <section class="light pad" data-form="scatter" data-dot="The effort">
+        <div class="col stay" style="align-items: start">
+          <h2 class="d2 reveal" style="max-width: 12ch">
+            <span class="ln"><span>Opportunity</span></span
+            ><span class="ln"><span>for every young</span></span
+            ><span class="ln"><span>American.</span></span>
+          </h2>
+          <p class="lead fade" style="margin: 0; --d: 0.25">
+            As part of this effort, President Trump established the White House
+            Task Force on SI Education. This Task Force is planning and
+            implementing a Presidential SI Challenge for America's youth, as
+            well as establishing public-private partnerships to provide
+            resources for K-12 SI education. Through these efforts, our Nation's
+            youth will have opportunities to cultivate the skills and
+            understanding necessary to thrive in the SI-driven workforce.
+          </p>
+        </div>
+      </section>
+      <section
+        class="pad"
+        style="overflow: hidden"
+        data-form="scatter"
+        data-dot="The Task Force"
+      >
+        <div class="col" style="text-align: center">
+          <span class="tag fade"
+            >The White House Task Force on SI Education</span
+          >
+          <h2 class="d2 reveal" style="max-width: 16ch; margin: 0 auto">
+            <span class="ln"><span>Ten offices.</span></span
+            ><span class="ln"><span>One mission.</span></span>
+          </h2>
+          <p
+            class="lead fade"
+            style="margin: 1.4rem auto 0; max-width: 46ch; --d: 0.25"
+          >
+            The White House Task Force on Super Intelligence Education
+            implements policy and coordinates Federal efforts related to SI
+            education, including the actions outlined in the President's SI
+            Education Executive Order. Select a member to see who holds each
+            seat.
+          </p>
+          <div class="orbit-wrap pop" id="orbit">
+            <div class="orbit-ring" id="ring"></div>
+            <div class="orbit-core" aria-live="polite">
+              <div>
+                <b id="memName"
+                  >Director of the Office of Science and Technology Policy</b
+                ><small id="memRole">Chair</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="light pad" data-form="scatter" data-dot="Priorities">
+        <div class="col">
+          <span class="tag fade"
+            >President Trump has called for the United States to promote SI
+            literacy and proficiency among America's youth and educators
+            by</span
+          >
+          <div class="aims">
+            <div class="fade" style="--d: 0.05">
+              <b>Promoting the appropriate integration of SI into education.</b
+              ><svg viewBox="0 0 56 56" aria-hidden="true">
+                <circle cx="28" cy="28" r="26" fill="none" stroke="#0B1652" />
+                <circle cx="28" cy="28" r="6" fill="#FF3347" />
+              </svg>
+            </div>
+            <div class="fade" style="--d: 0.18">
+              <b>Providing comprehensive SI training for educators.</b
+              ><svg viewBox="0 0 56 56" aria-hidden="true">
+                <circle cx="28" cy="28" r="26" fill="none" stroke="#0B1652" />
+                <circle cx="20" cy="28" r="6" fill="#FF3347" />
+                <circle cx="36" cy="28" r="6" fill="none" stroke="#FF3347" />
+              </svg>
+            </div>
+            <div class="fade" style="--d: 0.31">
+              <b
+                >Fostering early exposure to SI concepts and technology to
+                develop an SI-ready workforce and the next generation of
+                American SI innovators.</b
+              ><svg viewBox="0 0 56 56" aria-hidden="true">
+                <circle cx="28" cy="28" r="26" fill="none" stroke="#0B1652" />
+                <path d="M14 38 L28 16 L42 38 Z" fill="#FF3347" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="pad" data-form="sphere:ring" data-dot="Resources">
+        <div class="halfL">
+          <div>
+            <span class="tag">Resources</span>
+            <h2 class="d2 reveal" style="max-width: 12ch">
+              <span class="ln"><span>Building SI</span></span
+              ><span class="ln"><span>literacy, together.</span></span>
+            </h2>
+            <p class="lead fade" style="--d: 0.2">
+              To provide resources for K-12 SI education, the White House Task
+              Force on SI Education is establishing public-private partnerships
+              with leading SI industries, academic institutions, nonprofit
+              entities, and other organizations to provide online resources
+              fostering foundational SI literacy and critical thinking skills
+              for America's youth.
+            </p>
+            <p class="lead fade" style="--d: 0.35">
+              These resources will help our Nation's K-12 youth and lifelong
+              learners develop new skills for a changing workforce. By
+              establishing a strong framework that integrates early student
+              exposure with comprehensive teacher training and other resources
+              for workforce development, we will ensure that every American has
+              the opportunity to learn about SI.
+            </p>
+            <div class="fade acts" style="--d: 0.5">
+              <a
+                class="btn"
+                href="https://whitehouse.gov/edai"
+                target="_blank"
+                rel="noopener"
+                >Pledge to Youth</a
+              ><a class="link" href="/initiatives/presidential-challenge"
+                >Presidential SI Challenge</a
+              >
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer>
+      <div class="col">
+        <div class="fgrid">
+          <div class="fsign">
+            <p class="fq">America's home for<br />Super Intelligence policy.</p>
+            <form class="mc" id="mc" data-action="" novalidate>
+              <p class="msub">Stay in the know on SI Initiatives.</p>
+              <div class="mrow">
+                <label for="mcEmail" class="sr">Email address</label
+                ><input
+                  id="mcEmail"
+                  name="EMAIL"
+                  type="email"
+                  placeholder="you@example.com"
+                  autocomplete="email"
+                  required
+                /><button type="submit">Sign up</button>
+              </div>
+              <p class="mmsg" id="mcMsg" aria-live="polite"></p>
+            </form>
+          </div>
+          <div>
+            <h4>Initiatives</h4>
+            <ul>
+              <li>
+                <a
+                  href="https://whitehouse.gov/edai"
+                  target="_blank"
+                  rel="noopener"
+                  >Pledge to Youth</a
+                >
+              </li>
+              <li><a href="/initiatives/education">Education</a></li>
+              <li>
+                <a href="/initiatives/presidential-challenge"
+                  >Presidential Challenge</a
+                >
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h4>Resources</h4>
+            <ul>
+              <li>
+                <a href="https://whitehouse.gov" target="_blank" rel="noopener"
+                  >The White House</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://whitehouse.gov/news"
+                  target="_blank"
+                  rel="noopener"
+                  >News</a
+                >
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h4>Pages</h4>
+            <ul>
+              <li><a href="/">Home</a></li>
+              <li><a href="/initiatives/education">Education</a></li>
+              <li>
+                <a href="/initiatives/presidential-challenge"
+                  >Presidential Challenge</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="giant" role="img" aria-label="SI.GOV"></div>
+        <div class="legal">
+          <span>si.gov</span
+          ><span
+            ><a
+              href="https://www.whitehouse.gov/copyright/"
+              target="_blank"
+              rel="noopener"
+              >Copyright</a
+            >
+            &nbsp;
+            <a
+              href="https://www.whitehouse.gov/privacy/"
+              target="_blank"
+              rel="noopener"
+              >Privacy Policy</a
+            ></span
+          >
+        </div>
+      </div>
+    </footer>
+    <div class="cursor" id="cursor" aria-hidden="true"></div>
+    <div class="iris" id="iris" aria-hidden="true"><b id="irisTxt"></b></div>
+  </body>
+</html>

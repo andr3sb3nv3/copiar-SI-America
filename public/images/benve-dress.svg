@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1000" viewBox="0 0 1000 1000" role="img" aria-label="Vestido largo de un hombro, con caída suave y tajo lateral">
+  <defs>
+    <path id="dress" d="M579 42Q598 39 612 54L633 187Q636 213 623 236L605 274C584 307 567 341 570 379C574 414 595 464 608 520L691 947Q654 962 612 966L573 661L573 969Q449 983 309 946L383 541C396 475 421 423 432 379C437 340 418 299 395 269Q381 248 388 227L543 114Z"/>
+    <clipPath id="inside-dress"><use href="#dress"/></clipPath>
+  </defs>
+  <use href="#dress" fill="#ffffff"/>
+  <g clip-path="url(#inside-dress)">
+    <path fill="#ded6ff" d="M608 53L644 195Q642 226 623 253C571 291 535 320 524 357C514 392 532 428 555 465C587 518 585 580 573 661L612 966L696 977L709 947L626 511C606 450 586 412 583 377C579 336 598 305 620 274L642 235L650 183Z"/>
+    <path fill="#ded6ff" d="M388 226L543 114L579 42Q576 119 553 164C524 209 472 244 396 273L378 249Z"/>
+    <path fill="#aebfff" d="M608 277C579 321 568 352 573 385C579 425 599 473 612 523L691 947L660 957L584 526C572 468 546 423 548 382C549 344 573 308 608 277Z"/>
+  </g>
+</svg>

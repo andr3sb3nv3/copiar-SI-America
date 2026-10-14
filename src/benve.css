@@ -1,0 +1,325 @@
+@import "@fontsource-variable/instrument-sans";
+@import "@fontsource/instrument-serif";
+
+:root {
+  font-family: "Instrument Sans Variable", Arial, sans-serif;
+  color: #ffffff;
+  background: #174af5;
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  --blue: #174af5;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  position: relative;
+  margin: 0;
+  background: #174af5;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+button {
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 6px;
+}
+::selection {
+  background: #ffffff;
+  color: #174af5;
+}
+.benve-header {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 3;
+  height: 104px;
+  padding: 0 64px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none;
+}
+.benve-header a {
+  pointer-events: auto;
+}
+.benve-wordmark {
+  font-size: 13px;
+  letter-spacing: 2.5px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+.benve-wordmark svg {
+  width: 14px;
+  height: 14px;
+}
+.benve-back {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  font-size: 11px;
+  color: #ffffffc4;
+}
+.benve-back svg {
+  transition: transform 0.2s;
+}
+.benve-back:hover svg {
+  transform: translateX(-4px);
+}
+.benve-main {
+  position: relative;
+}
+.benve-panel {
+  position: relative;
+  z-index: 1;
+  width: min(1600px, 100%);
+  margin: 0 auto;
+  min-height: max(680px, 100svh);
+  padding: 116px 64px 108px;
+  display: grid;
+  grid-template-columns: minmax(0, 0.43fr) minmax(0, 0.57fr);
+  align-items: center;
+  gap: 28px;
+  pointer-events: none;
+}
+.benve-panel-left {
+  grid-template-columns: minmax(0, 0.57fr) minmax(0, 0.43fr);
+}
+.benve-panel-left .benve-anchor {
+  grid-column: 1;
+}
+.benve-copy {
+  position: relative;
+  padding-left: 12px;
+  opacity: var(--intro-opacity, 1);
+  pointer-events: auto;
+}
+.benve-copy h1 {
+  margin: 0;
+  font-family: "Instrument Serif", Georgia, serif;
+  font-size: clamp(88px, 10.2vw, 160px);
+  line-height: 1;
+  font-weight: 400;
+  letter-spacing: -0.048em;
+}
+.benve-copy p {
+  margin: 24px 0 0 5px;
+  font-size: 17px;
+  letter-spacing: 0.035em;
+  color: #fffffff0;
+}
+.benve-stage {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+.benve-anchor {
+  min-width: 0;
+  width: 100%;
+  height: min(76svh, calc(100svh - 224px), 760px);
+}
+.benve-anchor-word {
+  height: min(34svh, 360px);
+  align-self: end;
+  margin-bottom: 64px;
+}
+#benve-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: pan-y;
+  outline-offset: -5px;
+}
+.benve-cursor {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 24px;
+  height: 24px;
+  margin: -12px 0 0 -12px;
+  border: 1px solid #ffffff80;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.benve-footer {
+  position: fixed;
+  inset: auto 0 0;
+  z-index: 3;
+  min-height: 88px;
+  padding: 20px 64px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 34px;
+  pointer-events: none;
+}
+.benve-hint {
+  margin: 0;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #ffffffa8;
+}
+.hint-dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: currentColor;
+}
+#benve-reset {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 10px;
+  padding: 11px 0;
+  border: 0;
+  background: transparent;
+  pointer-events: auto;
+  color: #ffffffde;
+}
+#benve-reset svg {
+  transition: transform 0.3s;
+}
+#benve-reset:hover svg {
+  transform: rotate(-35deg);
+}
+@media (min-width: 1700px) {
+  .benve-header,
+  .benve-footer {
+    padding-left: max(64px, calc((100vw - 1472px) / 2));
+    padding-right: max(64px, calc((100vw - 1472px) / 2));
+  }
+}
+@media (max-width: 900px) {
+  .benve-header {
+    height: 86px;
+    padding: 0 32px;
+  }
+  .benve-panel {
+    padding: 128px 32px 108px;
+    min-height: 100svh;
+    grid-template-columns: 1fr;
+    gap: 30px;
+    align-content: center;
+  }
+  .benve-copy {
+    padding-left: 0;
+  }
+  .benve-copy h1 {
+    font-size: clamp(90px, 18vw, 146px);
+  }
+  .benve-copy p {
+    margin: 16px 0 0 3px;
+    font-size: 16px;
+  }
+  .benve-anchor {
+    height: min(84vw, 570px);
+  }
+  .benve-panel-left {
+    align-content: center;
+  }
+  .benve-anchor-word {
+    height: min(44vw, 280px);
+    margin-bottom: 0;
+    align-self: center;
+  }
+  .benve-footer {
+    padding: 18px 32px;
+    min-height: 78px;
+  }
+}
+@media (max-width: 500px) {
+  .benve-header {
+    height: 80px;
+    padding: 0 24px;
+  }
+  .benve-wordmark {
+    font-size: 11px;
+    letter-spacing: 2px;
+    gap: 9px;
+  }
+  .benve-back {
+    font-size: 10px;
+    gap: 9px;
+  }
+  .benve-panel {
+    padding: 116px 24px 102px;
+    gap: 26px;
+  }
+  .benve-copy h1 {
+    font-size: clamp(84px, 25vw, 120px);
+  }
+  .benve-copy p {
+    margin-top: 13px;
+    font-size: 15px;
+  }
+  .benve-anchor {
+    height: 94vw;
+    max-height: 460px;
+  }
+  .benve-anchor-word {
+    height: 44vw;
+  }
+  .benve-footer {
+    padding: 18px 24px;
+    gap: 22px;
+  }
+  .benve-hint {
+    font-size: 9px;
+    gap: 7px;
+  }
+  #benve-reset {
+    font-size: 10px;
+  }
+}
+@media (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .benve-cursor {
+    display: none;
+  }
+}
+@media (max-width: 500px) and (max-height: 720px) {
+  .benve-panel {
+    padding-top: 96px;
+    padding-bottom: 88px;
+    gap: 20px;
+  }
+  .benve-anchor {
+    height: min(84vw, calc(100svh - 340px));
+  }
+  .benve-anchor-word {
+    height: 44vw;
+  }
+}
+@media (max-width: 900px) {
+  [data-particle-scene="dress"] .benve-anchor {
+    height: min(72svh, calc(100svh - 200px), 760px);
+    max-height: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+  }
+}
