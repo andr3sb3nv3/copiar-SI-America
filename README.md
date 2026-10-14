@@ -40,6 +40,8 @@ Importa el repositorio de GitHub y usa `main` como rama de producción. La carpe
 
 BENVE está en `/benve/`. Las otras páginas son `/`, `/initiatives/education/` y `/initiatives/presidential-challenge/`. Cada ruta tiene su propio HTML compilado. Al subir cambios a `main`, Vercel genera un nuevo despliegue si la integración con GitHub está activa.
 
+Las cuatro páginas incluyen botones fijos a la derecha para pasar entre SI.gov, BENVE, Educación y Challenge. El botón de la página actual aparece resaltado.
+
 ## Interacciones
 
 - Las letras SI se transforman al pasar el mouse; en dispositivos táctiles, toca la figura.

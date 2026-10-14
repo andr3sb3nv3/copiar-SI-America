@@ -1,5 +1,6 @@
 @import "@fontsource-variable/instrument-sans";
 @import "@fontsource/instrument-serif";
+@import "./page-nav.css";
 
 :root {
   font-family: "Instrument Sans Variable", Arial, sans-serif;
@@ -8,6 +9,8 @@
   font-synthesis: none;
   -webkit-font-smoothing: antialiased;
   --blue: #174af5;
+  --page-nav-surface: #174af5ed;
+  --page-nav-ink: #174af5;
 }
 * {
   box-sizing: border-box;
@@ -208,6 +211,11 @@ button {
   .benve-footer {
     padding-left: max(64px, calc((100vw - 1472px) / 2));
     padding-right: max(64px, calc((100vw - 1472px) / 2));
+  }
+}
+@media (min-width: 901px) {
+  [data-particle-anchor="logo"] {
+    width: calc(100% - 48px);
   }
 }
 @media (max-width: 900px) {
