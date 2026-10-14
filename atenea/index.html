@@ -21,17 +21,24 @@
       <a href="/initiatives/presidential-challenge/" aria-label="Presidential SI Challenge"><span class="page-nav-index" aria-hidden="true">04</span><span class="page-nav-label">Challenge</span></a>
       <a href="/atenea/" aria-label="ATENEA, marketing digital" aria-current="page"><span class="page-nav-index" aria-hidden="true">05</span><span class="page-nav-label">ATENEA</span></a>
     </nav>
-    <main class="atenea-main" aria-labelledby="atenea-title">
-      <h1 id="atenea-title" class="sr-only">ATENEA, marketing digital</h1>
+    <main id="atenea-story" class="atenea-main" aria-labelledby="atenea-title">
       <div class="atenea-stage">
-        <canvas id="atenea-canvas" tabindex="0" role="img" aria-label="Logo de ATENEA formado por puntos verdes: una A grande sobre la palabra ATENEA, cuyas dos A completan la forma triangular. Mové el mouse para interactuar o pulsá Enter para crear una onda."></canvas>
+        <canvas id="atenea-canvas" tabindex="0" role="img" aria-label="Puntos verdes flúor forman el logo de ATENEA y, al bajar, las palabras Marketing Digital. Mové el mouse para interactuar o pulsá Enter para crear una onda."></canvas>
         <span class="atenea-cursor" aria-hidden="true"></span>
       </div>
-      <p class="atenea-caption">marketing digital</p>
+      <section class="atenea-panel" data-atenea-scene="logo" aria-labelledby="atenea-title">
+        <h1 id="atenea-title" class="sr-only">ATENEA, marketing digital</h1>
+        <div class="atenea-anchor" data-atenea-anchor="logo" aria-hidden="true"></div>
+        <p class="atenea-scroll-cue">Deslizá para descubrir <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.25" aria-hidden="true"><path d="M10 4v12m-5-5 5 5 5-5" /></svg></p>
+      </section>
+      <section class="atenea-panel atenea-panel-left" data-atenea-scene="marketing" aria-labelledby="atenea-marketing-title">
+        <h2 id="atenea-marketing-title" class="sr-only">Marketing Digital</h2>
+        <div class="atenea-anchor" data-atenea-anchor="marketing" aria-hidden="true"></div>
+      </section>
     </main>
     <footer class="atenea-footer">
       <p class="atenea-hint"><span aria-hidden="true"></span>Mové el mouse para explorar</p>
-      <button id="atenea-reset" type="button" aria-label="Recomponer el logo de ATENEA">Recomponer <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.25" aria-hidden="true"><path d="M15 6a6 6 0 1 0 1 7M15 2v5h-5" /></svg></button>
+      <button id="atenea-reset" type="button" aria-label="Recomponer los puntos">Recomponer <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.25" aria-hidden="true"><path d="M15 6a6 6 0 1 0 1 7M15 2v5h-5" /></svg></button>
     </footer>
     <script type="module" src="/src/atenea.js"></script>
   </body>
